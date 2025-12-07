@@ -40,8 +40,7 @@ struct QuotaView: View {
           .frame(minHeight: 200)
           .layoutPriority(1)
 
-          Spacer()
-            .frame(height: 5)
+          Spacer(minLength: 10)
 
           ZStack(alignment: .bottom) {
             AsyncImage(url: viewModel.character.images.first!) { image in

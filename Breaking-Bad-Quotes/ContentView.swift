@@ -8,25 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        TabView {
-            // First Tab: Breaking Bad View
-            Text("Breaking Bad View")
-                .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                .tabItem {
-                    Label("Breaking Bad", systemImage: "tortoise")
-                }
-            
-            // Second Tab: Better Call Saul View
-            Text("Better Call Saul View")
-                .toolbarBackgroundVisibility(.visible, for: .tabBar)
-                .tabItem {
-                    Label("Better Call Saul", systemImage: "briefcase")
-                }
-        } 
+  var body: some View {
+    TabView {
+      // First Tab: Breaking Bad View
+      QuotaView(show: "Breaking Bad")
+        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+        .tabItem {
+          Label("Breaking Bad", systemImage: "tortoise")
+        }
+
+      // Second Tab: Better Call Saul View
+      QuotaView(show: "Better Call Saul")
+        .toolbarBackgroundVisibility(.visible, for: .tabBar)
+        .tabItem {
+          Label("Better Call Saul", systemImage: "briefcase")
+        }
     }
+  }
 }
 
 #Preview {
-    ContentView()
+  ContentView()
 }
