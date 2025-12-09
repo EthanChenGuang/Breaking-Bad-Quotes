@@ -15,7 +15,7 @@ struct QuotaView: View {
   var body: some View {
     GeometryReader { geometry in
       ZStack {
-        Image(show.lowercased().replacingOccurrences(of: " ", with: ""))
+        Image(show.removeCaseAndSpace())
           .resizable()
           .scaledToFill()
           .frame(width: geometry.size.width * 2.7, height: geometry.size.height * 1.2)
