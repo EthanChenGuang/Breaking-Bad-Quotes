@@ -10,6 +10,7 @@ import SwiftUI
 struct QuotaView: View {
   let viewModel: ViewModel = ViewModel()
   let show: String
+  @State private var showCharacterView: Bool = false
 
   var body: some View {
     GeometryReader { geometry in
@@ -17,82 +18,107 @@ struct QuotaView: View {
         Image(show.lowercased().replacingOccurrences(of: " ", with: ""))
           .resizable()
           .scaledToFill()
-          .ignoresSafeArea()
+          .frame(width: geometry.size.width * 2.7, height: geometry.size.height * 1.2)
 
-        VStack(spacing: 0) {
-          Spacer()
-            .frame(height: geometry.safeAreaInsets.top + 60)
+        VStack {
+          VStack {
 
-          Text(
-            "\"\(viewModel.quote.quote)\""
-          )
-          .font(.body)
-          .minimumScaleFactor(0.5)
-          .lineLimit(10)
-          .truncationMode(.tail)
-          .multilineTextAlignment(.leading)
-          .foregroundColor(.white)
-          .padding(.vertical, 12)
-          .padding(.horizontal, 16)
-          .background(Color.gray.opacity(0.5))
-          .cornerRadius(25)
-          .padding(.horizontal)
-          .frame(minHeight: 200)
-          .layoutPriority(1)
+            Spacer(minLength: 60)
 
-          Spacer()
-            .frame(height: 5)
-
-          ZStack(alignment: .bottom) {
-            AsyncImage(url: viewModel.character.images.first!) { image in
-              image
-                .resizable()
-                .scaledToFill()
-                .brightness(0.15)
-                .contrast(1.1)
-            } placeholder: {
+            switch viewModel.status {
+            case .notStarted:
+              EmptyView()
+            case .fetching:
               ProgressView()
-            }
-            .frame(width: geometry.size.width * 0.75)
-            .aspectRatio(0.7, contentMode: .fit)
-            .clipped()
+            case .success:
 
-            Text(viewModel.character.name)
-              .font(.system(size: 16))
+              // Quote Text
+              Text(
+                "\"\(viewModel.quote.quote)\""
+              )
+              .minimumScaleFactor(0.5)
+              .lineLimit(10)
+              .truncationMode(.tail)
+              .multilineTextAlignment(.leading)
               .foregroundColor(.white)
-              .padding(.vertical, 8)
-              .padding(.horizontal, 12)
-              .frame(maxWidth: .infinity)
-              .background(.ultraThinMaterial)
+              .padding(.all, 20)
+              .background(Color.gray.opacity(0.5))
+              .cornerRadius(25)
+              .padding(.horizontal)
+
+              Spacer()
+                .frame(height: 10)
+
+              // Character Image and Name
+              ZStack(alignment: .bottom) {
+
+                // Character Image
+                AsyncImage(url: viewModel.character.images[0]) { image in
+                  image
+                    .resizable()
+                    .scaledToFill()
+                    .brightness(0.15)
+                    .contrast(1.1)
+                } placeholder: {
+                  ProgressView()
+                }
+                .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
+                .clipped()
+
+                // Character Name
+                Text(viewModel.character.name)
+                  .foregroundColor(.white)
+                  .padding(.all, 12)
+                  .frame(maxWidth: .infinity)
+                  .background(.ultraThinMaterial)
+              }
+              .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
+              .clipShape(.rect(cornerRadius: 25))
+              .onTapGesture {
+                showCharacterView.toggle()
+              }
+
+            case .failed(let error):
+              Text("Failed: \(error.localizedDescription)")
+            }
+
+            Spacer()
+
           }
-          .frame(width: geometry.size.width * 0.75)
-          .clipShape(.rect(cornerRadius: 25))
-          .layoutPriority(0)
-
-          Spacer(minLength: 20)
-
+          // Get Random Quote Button
           Button {
+            Task {
+              await viewModel.getData(for: show)
+            }
 
           } label: {
             Text("Get Random Quote")
-              .font(.system(size: 18, weight: .semibold))
+              .font(.title)
               .foregroundColor(.white)
-              .padding(.vertical, 12)
-              .padding(.horizontal, 20)
-              .background(Color("BreakingBadGreen"))
+              .padding()
+              .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
               .clipShape(.rect(cornerRadius: 7))
-              .shadow(color: Color("BreakingBadYellow"), radius: 2)
+              .shadow(
+                color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2)
           }
 
-          Spacer()
-            .frame(height: geometry.safeAreaInsets.bottom + 60)
-        }
+          Spacer(minLength: 95)
+
+        }  //VStack
         .frame(width: geometry.size.width, height: geometry.size.height)
-      }
+
+      }  //ZStack
       .frame(width: geometry.size.width, height: geometry.size.height)
+
+    }  //GeometryReader
+    .ignoresSafeArea()
+    .sheet(isPresented: $showCharacterView) {
+      CharacterView(character: viewModel.character, show: show)
     }
-  }
-}
+
+  }  //Body view
+
+}  //QuotaView
 
 #Preview {
   QuotaView(show: "Breaking Bad")
