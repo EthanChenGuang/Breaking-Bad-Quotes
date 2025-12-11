@@ -9,11 +9,26 @@ import Foundation
 
 @Observable
 class ViewModel {
-  enum FetchStatus {
+  enum FetchStatus: Equatable {
     case notStarted
     case fetching
-    case success
+    case successQuote
+    case successEpisode
     case failed(error: Error)
+
+    static func == (lhs: FetchStatus, rhs: FetchStatus) -> Bool {
+      switch (lhs, rhs) {
+      case (.notStarted, .notStarted),
+        (.fetching, .fetching),
+        (.successQuote, .successQuote),
+        (.successEpisode, .successEpisode):
+        return true
+      case (.failed(let lhsError), .failed(let rhsError)):
+        return lhsError.localizedDescription == rhsError.localizedDescription
+      default:
+        return false
+      }
+    }
   }
 
   private(set) var status: FetchStatus = .notStarted
@@ -21,6 +36,7 @@ class ViewModel {
   private let fetcher = FetchService()
   var quote: Quote
   var character: Character
+  var episode: Episode
 
   func fetchQuote(from show: String) async {
     do {
@@ -42,19 +58,33 @@ class ViewModel {
       contentsOf: Bundle.main.url(forResource: "samplecharacter", withExtension: "json")!)
     self.character = try! decoder.decode(Character.self, from: characterData)
 
+    let episodeData = try! Data(
+      contentsOf: Bundle.main.url(forResource: "sampleepisode", withExtension: "json")!)
+    self.episode = try! decoder.decode(Episode.self, from: episodeData)
   }
 
-  func getData(for show: String) async {
+  func getQuoteData(for show: String) async {
     status = .fetching
     do {
-      quote = try await fetcher.fetchQuote(from: show)
-      character = try await fetcher.fetchCharacter(from: quote.character)
-      character.death = try await fetcher.fetchDeath(from: character.name)
-      status = .success
+      self.quote = try await fetcher.fetchQuote(from: show)
+      self.character = try await fetcher.fetchCharacter(from: quote.character)
+      self.character.death = try await fetcher.fetchDeath(from: character.name)
+      self.status = .successQuote
     } catch {
-      status = .failed(error: error)
+      self.status = .failed(error: error)
     }
 
   }
 
+  func getEpisodeData(for show: String) async {
+    status = .fetching
+    do {
+      if let episode = try await fetcher.fetchEpisode(from: show) {
+        self.episode = episode
+        status = .successEpisode
+      }
+    } catch {
+      status = .failed(error: error)
+    }
+  }
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct QuotaView: View {
+struct FetchView: View {
   let viewModel: ViewModel = ViewModel()
   let show: String
   @State private var showCharacterView: Bool = false
@@ -26,11 +26,14 @@ struct QuotaView: View {
             Spacer(minLength: 60)
 
             switch viewModel.status {
+
             case .notStarted:
               EmptyView()
+
             case .fetching:
               ProgressView()
-            case .success:
+
+            case .successQuote:
 
               // Quote Text
               Text(
@@ -78,34 +81,65 @@ struct QuotaView: View {
                 showCharacterView.toggle()
               }
 
+            case .successEpisode:
+
+              EpisodeView(episode: viewModel.episode)
+
             case .failed(let error):
               Text("Failed: \(error.localizedDescription)")
+
             }
 
             Spacer()
 
           }
-          // Get Random Quote Button
-          Button {
-            Task {
-              await viewModel.getData(for: show)
+          HStack {
+            // Get Random Quote Button
+            Button {
+              Task {
+                await viewModel.getQuoteData(for: show)
+              }
+
+            } label: {
+              Text("Get Random Quote")
+                .font(.title3)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
+                .clipShape(.rect(cornerRadius: 7))
+                .shadow(
+                  color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2)
             }
 
-          } label: {
-            Text("Get Random Quote")
-              .font(.title)
-              .foregroundColor(.white)
-              .padding()
-              .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
-              .clipShape(.rect(cornerRadius: 7))
-              .shadow(
-                color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2)
+            Spacer()
+
+            // Get Random Episode Button
+            Button {
+              Task {
+                await viewModel.getEpisodeData(for: show)
+              }
+            } label: {
+              Text("Get Random Episode")
+                .font(.title3)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
+                .clipShape(.rect(cornerRadius: 7))
+                .shadow(
+                  color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2)
+            }
           }
+          .padding(.horizontal, 40)
 
           Spacer(minLength: 95)
 
         }  //VStack
         .frame(width: geometry.size.width, height: geometry.size.height)
+        .task {
+          if viewModel.status == .notStarted {
+            await viewModel.getQuoteData(for: show)
+          }
+        }
 
       }  //ZStack
       .frame(width: geometry.size.width, height: geometry.size.height)
@@ -121,5 +155,5 @@ struct QuotaView: View {
 }  //QuotaView
 
 #Preview {
-  QuotaView(show: "Breaking Bad")
+  FetchView(show: "Breaking Bad")
 }
