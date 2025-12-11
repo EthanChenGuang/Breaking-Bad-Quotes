@@ -68,6 +68,19 @@ struct FetchView: View {
                 .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
                 .clipped()
 
+                // Tap Icon Indicator
+                VStack {
+                  HStack {
+                    Spacer()
+                    Image(systemName: "info.circle.fill")
+                      .font(.title)
+                      .foregroundColor(.white)
+                      .shadow(color: .black.opacity(0.5), radius: 3)
+                      .padding()
+                  }
+                  Spacer()
+                }
+
                 // Character Name
                 Text(viewModel.character.name)
                   .foregroundColor(.white)
@@ -102,6 +115,19 @@ struct FetchView: View {
                 }
                 .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
                 .clipped()
+
+                // Tap Icon Indicator
+                VStack {
+                  HStack {
+                    Spacer()
+                    Image(systemName: "info.circle.fill")
+                      .font(.title)
+                      .foregroundColor(.white)
+                      .shadow(color: .black.opacity(0.5), radius: 3)
+                      .padding()
+                  }
+                  Spacer()
+                }
 
                 // Character Name
                 Text(viewModel.character.name)
