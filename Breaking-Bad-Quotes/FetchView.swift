@@ -85,6 +85,37 @@ struct FetchView: View {
 
               EpisodeView(episode: viewModel.episode)
 
+            case .successCharacter:
+
+              // Character Image and Name
+              ZStack(alignment: .bottom) {
+
+                // Character Image
+                AsyncImage(url: viewModel.character.images.randomElement()) { image in
+                  image
+                    .resizable()
+                    .scaledToFill()
+                    .brightness(0.15)
+                    .contrast(1.1)
+                } placeholder: {
+                  ProgressView()
+                }
+                .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
+                .clipped()
+
+                // Character Name
+                Text(viewModel.character.name)
+                  .foregroundColor(.white)
+                  .padding(.all, 12)
+                  .frame(maxWidth: .infinity)
+                  .background(.ultraThinMaterial)
+              }
+              .frame(width: geometry.size.width / 1.1, height: geometry.size.height / 1.8)
+              .clipShape(.rect(cornerRadius: 25))
+              .onTapGesture {
+                showCharacterView.toggle()
+              }
+
             case .failed(let error):
               Text("Failed: \(error.localizedDescription)")
 
@@ -93,7 +124,7 @@ struct FetchView: View {
             Spacer()
 
           }
-          HStack {
+          HStack(spacing: 8) {
             // Get Random Quote Button
             Button {
               Task {
@@ -102,16 +133,16 @@ struct FetchView: View {
 
             } label: {
               Text("Get Random Quote")
-                .font(.title3)
+                .font(.subheadline)
                 .foregroundColor(.white)
-                .padding()
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
                 .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
                 .clipShape(.rect(cornerRadius: 7))
                 .shadow(
-                  color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2)
+                  color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2
+                )
             }
-
-            Spacer()
 
             // Get Random Episode Button
             Button {
@@ -120,9 +151,28 @@ struct FetchView: View {
               }
             } label: {
               Text("Get Random Episode")
-                .font(.title3)
+                .font(.subheadline)
                 .foregroundColor(.white)
-                .padding()
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
+                .clipShape(.rect(cornerRadius: 7))
+                .shadow(
+                  color: Color("\(show.replacingOccurrences(of: " ", with: ""))Shadow"), radius: 2
+                )
+            }
+
+            // Get Random Character Button
+            Button {
+              Task {
+                await viewModel.getCharacterData(for: show)
+              }
+            } label: {
+              Text("Get Random Character")
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
                 .background(Color("\(show.replacingOccurrences(of: " ", with: ""))Button"))
                 .clipShape(.rect(cornerRadius: 7))
                 .shadow(

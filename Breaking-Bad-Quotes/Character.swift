@@ -15,7 +15,27 @@ struct Character: Decodable {
   let aliases: [String]
   let status: String
   let portrayedBy: String
+  let appearance: Appearance
   var death: Death?
+
+  struct Appearance: Decodable {
+    let breakingBad: [Int]
+    let betterCallSaul: [Int]
+    let elCamino: [Int]
+  }
+
+  func appearsIn(show: String) -> Bool {
+    switch show {
+    case "Breaking Bad":
+      return !appearance.breakingBad.isEmpty
+    case "Better Call Saul":
+      return !appearance.betterCallSaul.isEmpty
+    case "El Camino":
+      return !appearance.elCamino.isEmpty
+    default:
+      return false
+    }
+  }
 
   init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -26,6 +46,7 @@ struct Character: Decodable {
     aliases = try container.decode([String].self, forKey: .aliases)
     status = try container.decode(String.self, forKey: .status)
     portrayedBy = try container.decode(String.self, forKey: .portrayedBy)
+    appearance = try container.decode(Appearance.self, forKey: .appearance)
 
     let deathDecoder = JSONDecoder()
     deathDecoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -46,6 +67,7 @@ extension Character {
     case aliases
     case status
     case portrayedBy
+    case appearance
     case death
   }
 }

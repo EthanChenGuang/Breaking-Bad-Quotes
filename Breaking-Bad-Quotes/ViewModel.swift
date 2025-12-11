@@ -14,6 +14,7 @@ class ViewModel {
     case fetching
     case successQuote
     case successEpisode
+    case successCharacter
     case failed(error: Error)
 
     static func == (lhs: FetchStatus, rhs: FetchStatus) -> Bool {
@@ -21,7 +22,8 @@ class ViewModel {
       case (.notStarted, .notStarted),
         (.fetching, .fetching),
         (.successQuote, .successQuote),
-        (.successEpisode, .successEpisode):
+        (.successEpisode, .successEpisode),
+        (.successCharacter, .successCharacter):
         return true
       case (.failed(let lhsError), .failed(let rhsError)):
         return lhsError.localizedDescription == rhsError.localizedDescription
@@ -85,6 +87,23 @@ class ViewModel {
       }
     } catch {
       status = .failed(error: error)
+    }
+  }
+
+  func getCharacterData(for show: String) async {
+    status = .fetching
+    do {
+      // Keep fetching until we find a character that appears in the current show
+      var fetchedCharacter: Character
+      repeat {
+        fetchedCharacter = try await fetcher.fetchRandomCharacter()
+      } while !fetchedCharacter.appearsIn(show: show)
+
+      self.character = fetchedCharacter
+      self.character.death = try await fetcher.fetchDeath(from: character.name)
+      self.status = .successCharacter
+    } catch {
+      self.status = .failed(error: error)
     }
   }
 }
