@@ -72,10 +72,10 @@ struct FetchView: View {
                 VStack {
                   HStack {
                     Spacer()
-                    Image(systemName: "info.circle.fill")
-                      .font(.title)
-                      .foregroundColor(.white)
-                      .shadow(color: .black.opacity(0.5), radius: 3)
+                    Image(systemName: "info.circle")
+                      .font(.title3)
+                      .foregroundColor(.white.opacity(0.6))
+                      .shadow(color: .black.opacity(0.3), radius: 2)
                       .padding()
                   }
                   Spacer()
@@ -120,10 +120,10 @@ struct FetchView: View {
                 VStack {
                   HStack {
                     Spacer()
-                    Image(systemName: "info.circle.fill")
-                      .font(.title)
-                      .foregroundColor(.white)
-                      .shadow(color: .black.opacity(0.5), radius: 3)
+                    Image(systemName: "info.circle")
+                      .font(.title3)
+                      .foregroundColor(.white.opacity(0.6))
+                      .shadow(color: .black.opacity(0.3), radius: 2)
                       .padding()
                   }
                   Spacer()
